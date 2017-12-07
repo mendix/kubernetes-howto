@@ -1,0 +1,50 @@
+apiVersion: apps/v1beta2
+kind: StatefulSet
+metadata:
+  name: mendix-k8s-stateful
+  labels:
+    app: mendix-k8s
+spec:
+  serviceName: mendix-k8s-ss
+  replicas: 2
+  selector:
+    matchLabels:
+      app: mendix-k8s
+  template:
+    metadata:
+      labels:
+        app: mendix-k8s
+    spec:
+      containers:
+        - name: mendix-app
+          image: mendix/sample-app-kubernetes:v2
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - mountPath: "/build/data/files"
+              name: mendix-data
+          env:
+            - name: ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                    name: mendix-app-secrets
+                    key: admin-password
+            - name: LICENSE_ID
+              valueFrom:
+                secretKeyRef:
+                  name: mendix-app-secrets
+                  key: license-id
+            - name: LICENSE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: mendix-app-secrets
+                  key: license-key
+            - name: DATABASE_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  name: mendix-app-secrets
+                  key: db-endpoint
+      volumes:
+        - hostPath:
+            path: "/home/docker/mendix-files"
+          name: mendix-data
