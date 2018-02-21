@@ -44,6 +44,12 @@ spec:
                 secretKeyRef:
                   name: mendix-app-secrets
                   key: db-endpoint
+          livenessProbe:
+              httpGet:
+                  path: /
+                  port: 80
+              initialDelaySeconds: 15
+              periodSeconds: 20
       volumes:
         - hostPath:
             path: "/home/docker/mendix-files"
